@@ -5,12 +5,23 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
+
+import tk1.lab.server.model.Flight;
+import tk1.lab.server.model.FlightStatus;
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JComboBox;
 import java.awt.Window.Type;
 import javax.swing.JButton;
 import javax.swing.DefaultComboBoxModel;
+
+import java.awt.event.InputMethodListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Details {
 
@@ -34,7 +45,12 @@ public class Details {
 	private JTextField textField_15;
 	private JTextField textField_16;
 	private JTextField textField_17;
-
+	String aircraftType = null;
+	FlightStatus status = null;
+	String IATACode = null;
+	String airlineName = null;
+	int flightNumber;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -62,6 +78,7 @@ public class Details {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		Flight f = new Flight();
 		frmFlightDetails = new JFrame();
 		frmFlightDetails.setTitle("Flight Details");
 		frmFlightDetails.setBounds(100, 100, 529, 412);
@@ -69,6 +86,13 @@ public class Details {
 		frmFlightDetails.getContentPane().setLayout(null);
 		
 		textField = new JTextField();
+		textField.addInputMethodListener(new InputMethodListener() {
+			public void caretPositionChanged(InputMethodEvent arg0) {
+			}
+			public void inputMethodTextChanged(InputMethodEvent arg0) {
+				IATACode = f.getIATACode();
+			}
+		});
 		textField.setBounds(126, 14, 130, 14);
 		frmFlightDetails.getContentPane().add(textField);
 		textField.setColumns(10);
@@ -79,6 +103,13 @@ public class Details {
 		frmFlightDetails.getContentPane().add(lblNewLabel);
 		
 		txtAsd = new JTextField();
+		txtAsd.addInputMethodListener(new InputMethodListener() {
+			public void caretPositionChanged(InputMethodEvent event) {
+			}
+			public void inputMethodTextChanged(InputMethodEvent event) {
+				aircraftType = f.getAircraftType();
+			}
+		});
 		txtAsd.setText("asd.66441TK");
 		txtAsd.setBounds(126, 39, 130, 14);
 		frmFlightDetails.getContentPane().add(txtAsd);
@@ -105,6 +136,14 @@ public class Details {
 		textField_1.setColumns(10);
 		
 		textField_3 = new JTextField();
+		textField_3.addInputMethodListener(new InputMethodListener() {
+			public void caretPositionChanged(InputMethodEvent event) {
+			}
+			public void inputMethodTextChanged(InputMethodEvent event) {
+				
+				f.getOriginDate();
+			}
+		});
 		textField_3.setBounds(126, 114, 130, 14);
 		frmFlightDetails.getContentPane().add(textField_3);
 		textField_3.setColumns(10);
@@ -195,6 +234,11 @@ public class Details {
 		frmFlightDetails.getContentPane().add(lblFlightStatus);
 		
 		JComboBox comboBox = new JComboBox();
+		comboBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				status = f.getStatus();
+			}
+		});
 		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Landed", "Not Landed"}));
 		comboBox.setBounds(126, 314, 380, 23);
 		frmFlightDetails.getContentPane().add(comboBox);
@@ -204,6 +248,13 @@ public class Details {
 		frmFlightDetails.getContentPane().add(lblOperatingAirlines);
 		
 		textField_11 = new JTextField();
+		textField_11.addInputMethodListener(new InputMethodListener() {
+			public void caretPositionChanged(InputMethodEvent event) {
+			}
+			public void inputMethodTextChanged(InputMethodEvent event) {
+				airlineName = f.getAirlineName();
+			}
+		});
 		textField_11.setColumns(10);
 		textField_11.setBounds(376, 14, 130, 14);
 		frmFlightDetails.getContentPane().add(textField_11);
@@ -263,6 +314,16 @@ public class Details {
 		frmFlightDetails.getContentPane().add(textField_17);
 		
 		JButton btnSave = new JButton("Save");
+		btnSave.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				f.setAircraftType(aircraftType);
+				f.setAirlineName(airlineName);
+				f.setFlightNumber(flightNumber);
+				f.setIATACode(IATACode);
+				f.setStatus(status);
+			}
+		});
 		btnSave.setBounds(417, 341, 89, 23);
 		frmFlightDetails.getContentPane().add(btnSave);
 		
