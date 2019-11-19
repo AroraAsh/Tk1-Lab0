@@ -8,7 +8,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class flight_list {
+public class flights {
 
 	private JFrame frmFlightList;
 	private JTable table;

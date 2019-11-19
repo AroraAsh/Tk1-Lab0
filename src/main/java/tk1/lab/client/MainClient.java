@@ -1,6 +1,8 @@
 package tk1.lab.client;
 
 import java.awt.EventQueue;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -12,6 +14,7 @@ import tk1.lab.client.gui.FlightListGui;
 import tk1.lab.client.gui.Logins;
 import tk1.lab.client.implementation.FlightClient;
 import tk1.lab.client.interfaces.IFlightClient;
+import tk1.lab.server.implementation.FlightServer;
 import tk1.lab.server.interfaces.IFlightServer;
 import tk1.lab.server.model.Flight;
 
@@ -20,22 +23,27 @@ public class MainClient {
 	public static IFlightServer stub;
 	public static FlightClient client;
 	public static IFlightClient clientStub;
+	public static Registry registry;
+	
+	public static void register (int port) throws RemoteException, NotBoundException {
+		 client = new FlightClient();
+	        clientStub = (IFlightClient) UnicastRemoteObject.exportObject(client, port);
+	        registry = LocateRegistry.getRegistry("127.0.0.1",port);
+		stub = (IFlightServer) registry.lookup("FlightServer");
+	    
+	    registry.rebind("ClientObject", clientStub);
+	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-		Registry registry = LocateRegistry.createRegistry(1888); 
-	    
-        // Looking up the registry for the remote object 
-        //stub = (IFlightServer) registry.lookup("FlightServer"); 
-        client = new FlightClient();
-        clientStub = (IFlightClient) UnicastRemoteObject.exportObject(client, 1888);
-        registry.bind("ClientObject", clientStub);
-		Logins dialog = new Logins();
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.setVisible(true);
+			register(0);
+			Logins dialog = new Logins();
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage()+ex.getStackTrace().toString());
+			ex.printStackTrace();
 		}
 	}
 
