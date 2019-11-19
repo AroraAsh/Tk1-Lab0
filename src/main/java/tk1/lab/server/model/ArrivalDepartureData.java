@@ -1,9 +1,15 @@
 package tk1.lab.server.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class ArrivalDepartureData {
+public class ArrivalDepartureData implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -53695862163854066L;
 	String airport;
+	String terminal;
 	Date scheduledDateTime;
 	Integer gateNo;
 	Date estimatedDateTime;
@@ -40,6 +46,12 @@ public class ArrivalDepartureData {
 	}
 	public void setCheckInData(CheckIn checkInData) {
 		this.checkInData = checkInData;
+	}
+	public String getTerminal() {
+		return terminal;
+	}
+	public void setTerminal(String terminal) {
+		this.terminal = terminal;
 	}
 	
 	

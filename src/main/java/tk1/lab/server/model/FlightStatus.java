@@ -20,4 +20,9 @@ public enum FlightStatus {
 		return this.flightStatusDescription;
 	}
 	
+	@Override
+	public String toString() {
+		return this.flightStatusDescription;
+	}
+	
 }

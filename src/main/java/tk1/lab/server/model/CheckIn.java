@@ -1,10 +1,15 @@
 package tk1.lab.server.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class CheckIn {
+public class CheckIn implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6290422679476399899L;
 	int checkInLocation;
-	int checkInCounter;
+	String checkInCounter;
 	Date checkInTimeStart;
 	Date checkInTimeEnd;
 	
@@ -14,10 +19,10 @@ public class CheckIn {
 	public void setCheckInLocation(int checkInLocation) {
 		this.checkInLocation = checkInLocation;
 	}
-	public int getCheckInCounter() {
+	public String getCheckInCounter() {
 		return checkInCounter;
 	}
-	public void setCheckInCounter(int checkInCounter) {
+	public void setCheckInCounter(String checkInCounter) {
 		this.checkInCounter = checkInCounter;
 	}
 	public Date getCheckInTimeStart() {

@@ -27,3 +27,17 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
+
+task start_server(type: JavaExec) {
+	description = 'Starts the Server side of this application'
+	classpath = sourceSets.main.runtimeClasspath
+	
+	main = 'tk1.lab.server.MainServer'
+}
+
+task start_client(type: JavaExec) {
+	description = 'Starts the Client side of this application'
+	classpath = sourceSets.main.runtimeClasspath
+	
+	main = 'tk1.lab.client.MainClient'
+}

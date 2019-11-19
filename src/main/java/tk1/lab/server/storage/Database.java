@@ -37,7 +37,7 @@ public class Database {
 	public boolean updateFlight(Flight flight) {
 		this.addToLog("Updating Flight:"+flight.getIATACode()+flight.getFlightNumber());
 		Database.flightList.put(flight.getIATACode()+flight.getFlightNumber(),flight);
-		return false;
+		return true;
 		
 	}
 	

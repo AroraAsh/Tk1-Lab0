@@ -24,20 +24,21 @@ public class MainClient {
 	public static FlightClient client;
 	public static IFlightClient clientStub;
 	public static Registry registry;
+	public static String clientName;
 	
 	public static void register (int port) throws RemoteException, NotBoundException {
-		 client = new FlightClient();
-	        clientStub = (IFlightClient) UnicastRemoteObject.exportObject(client, port);
-	        registry = LocateRegistry.getRegistry("127.0.0.1",port);
+		client = new FlightClient();
+	    clientStub = (IFlightClient) UnicastRemoteObject.exportObject(client, 6000);
+	    registry = LocateRegistry.getRegistry(port);
 		stub = (IFlightServer) registry.lookup("FlightServer");
 	    
-	    registry.rebind("ClientObject", clientStub);
+	    //registry.rebind("ClientObject", clientStub);
 	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			register(0);
+			register(6010);
 			Logins dialog = new Logins();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);

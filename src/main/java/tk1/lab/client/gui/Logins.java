@@ -53,8 +53,7 @@ public class Logins extends JDialog {
 									FlightListGui window = new FlightListGui();
 									window.frmFlightList.setVisible(true);
 									MainClient.stub.login(textField.getText(), MainClient.clientStub);
-									
-									
+									MainClient.clientName = textField.getText();
 								} catch (Exception e) {
 									e.printStackTrace();
 								}

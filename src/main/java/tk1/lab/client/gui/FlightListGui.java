@@ -1,6 +1,7 @@
 package tk1.lab.client.gui;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -18,9 +19,9 @@ public class FlightListGui {
 
 	public JFrame frmFlightList;
 	private JTable table;
-	private String[] col = {"Operating Airline","IATA Code","Trcking No.","Departure","Arrival","Terminal",
+	private static String[] col = {"Operating Airline","IATA Code","Flight No.","Departure","Arrival","Terminal",
 			"Scheduled Departure","Scheduled Arrival"};
-	DefaultTableModel tableModel = new DefaultTableModel(col, 0);
+	static DefaultTableModel tableModel = new DefaultTableModel(col, 0);
 	public static List<Flight> flightList = new ArrayList<>();
 	/**
 	 * Create the application.
@@ -36,13 +37,16 @@ public class FlightListGui {
 	private void initialize() {
 		frmFlightList = new JFrame();
 		frmFlightList.setTitle("Flight List");
-		frmFlightList.setBounds(100, 100, 578, 411);
+		frmFlightList.setBounds(100, 100, 590, 450);
 		frmFlightList.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmFlightList.getContentPane().setLayout(null);
 		
 		table = new JTable(tableModel);
 		table.setBounds(0, 0, 562, 338);
-		frmFlightList.getContentPane().add(table);
+		table.setDefaultEditor(Object.class, null);
+		JScrollPane scrollPane= new  JScrollPane(table);
+		scrollPane.setBounds(0, 0, 562, 350);
+		frmFlightList.getContentPane().add(scrollPane);
 		
 		JButton btnNew = new JButton("New");
 		btnNew.addActionListener(new ActionListener() {
@@ -54,6 +58,11 @@ public class FlightListGui {
 		frmFlightList.getContentPane().add(btnNew);
 		
 		JButton btnEdit = new JButton("Edit");
+		btnEdit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				EditButton();
+			}
+		});
 		btnEdit.setBounds(236, 343, 89, 23);
 		frmFlightList.getContentPane().add(btnEdit);
 		
@@ -62,7 +71,19 @@ public class FlightListGui {
 		frmFlightList.getContentPane().add(btnDelete);
 	}
 	
+	public void EditButton() {
+		String IATACode = this.table.getValueAt(this.table.getSelectedRow(), 1).toString();
+		int flightNumber = Integer.parseInt(this.table.getValueAt(this.table.getSelectedRow(), 2).toString());
+		for(int i=0;i<this.flightList.size();i++) {
+			Flight f = this.flightList.get(i);
+			if(f.getIATACode()==IATACode&&f.getFlightNumber()==flightNumber) {
+				Details.NewEditScreen(f);
+			}
+		}
+	}
+	
 	public void setFlightListData(List<Flight> flights) {
+		
 		this.tableModel.setRowCount(0);
 		for(Flight flight: flights) {
 			Object[]  rowData = {flight.getAirlineName(),flight.getIATACode(),flight.getFlightNumber(),flight.getDepartureData().getAirport(),

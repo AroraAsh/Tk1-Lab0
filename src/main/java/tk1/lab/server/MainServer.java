@@ -19,8 +19,8 @@ public class MainServer extends FlightServer{
 	public static void register (int port) throws RemoteException {
 		obj = new FlightServer();
 		stub = (IFlightServer)UnicastRemoteObject.exportObject(obj, port);
-		System.setProperty("java.rmi.server.hostname","127.0.0.1");
-	    registry = LocateRegistry.createRegistry(port);
+		LocateRegistry.createRegistry(port);
+	    registry = LocateRegistry.getRegistry(port);
 	    registry.rebind ("FlightServer", stub);
 	}
 	
@@ -28,7 +28,7 @@ public class MainServer extends FlightServer{
 		// TODO Auto-generated method stub
 		
 		try {
-			register(0);
+			register(6010);
 			System.out.println("Server Ready");
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block

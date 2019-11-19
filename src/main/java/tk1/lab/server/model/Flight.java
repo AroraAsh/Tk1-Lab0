@@ -1,8 +1,13 @@
 package tk1.lab.server.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Flight {
+public class Flight implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8267577485755387159L;
 	int flightNumber;
 	String IATACode;
 	String airlineName;

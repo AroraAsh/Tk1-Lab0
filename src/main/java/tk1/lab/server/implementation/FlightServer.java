@@ -18,7 +18,22 @@ public class FlightServer implements IFlightServer {
 			database.logoutUser(clientName);
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage());
+			ex.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void addNewFlight(String clientName, Flight flight) {
+		try {
+				Database database = new Database();
+				database.updateFlight(flight);
+				IFlightClient client = database.getClientObject(clientName);
+				System.out.println(clientName+"::"+flight.getIATACode()+flight.getFlightNumber());
+				database.getClientObject(clientName).receiveFlights(database.getFlights());
+			}catch(Exception ex) {
+				System.out.println("Exception:"+ex.getMessage());
+				ex.printStackTrace();
+			}
 	}
 
 	@Override
@@ -28,9 +43,11 @@ public class FlightServer implements IFlightServer {
 		Database database = new Database();
 		database.updateFlight(flight);
 		IFlightClient client = database.getClientObject(clientName);
+		System.out.println(clientName+"::"+flight.getIATACode()+flight.getFlightNumber());
 		database.getClientObject(clientName).receiveUpdatedFlight(flight, false);
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage());
+			ex.printStackTrace();
 		}
 		
 	}
@@ -43,6 +60,7 @@ public class FlightServer implements IFlightServer {
 			database.getClientObject(clientName).receiveUpdatedFlight(flight, true);
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 
@@ -51,9 +69,11 @@ public class FlightServer implements IFlightServer {
 		try {
 			Database database = new Database();
 			database.login(clientName, client);
+			System.out.println("Logging in user:"+clientName);
 			client.receiveFlights(database.getFlights());
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 

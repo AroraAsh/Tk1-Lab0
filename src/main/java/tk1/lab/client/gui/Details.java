@@ -5,7 +5,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
+import javax.swing.text.NumberFormatter;
 
+import tk1.lab.client.MainClient;
+import tk1.lab.server.model.ArrivalDepartureData;
+import tk1.lab.server.model.CheckIn;
 import tk1.lab.server.model.Flight;
 import tk1.lab.server.model.FlightStatus;
 
@@ -22,34 +26,48 @@ import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.swing.JFormattedTextField;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.text.Format;
+import java.text.NumberFormat;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Details {
 
 	private JFrame frmFlightDetails;
-	private JTextField textField;
-	private JTextField txtAsd;
-	private JTextField textField_2;
-	private JTextField textField_1;
-	private JTextField textField_3;
-	private JTextField txtt;
-	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
-	private JTextField textField_8;
-	private JTextField textField_9;
-	private JTextField textField_10;
-	private JTextField textField_11;
-	private JTextField textField_12;
-	private JTextField textField_13;
-	private JTextField textField_14;
-	private JTextField textField_15;
-	private JTextField textField_16;
-	private JTextField textField_17;
+	private JTextField txtIATACode;
+	private JTextField txtAircraftType;
+	private JTextField txtDepartureAirport;
+	private JTextField txtDepartureTerminal;
+	private JTextField txtDepartureGate;
+	private JTextField txtCheckInLoc;
+	private JTextField txtCheckInCounter;
+	private JTextField txtOperatingAirline;
+	private JTextField txtArrivalAirport;
+	private JTextField txtArrivalTerminal;
+	private JTextField txtArrivalGate;
+	JComboBox comboBoxFlightStatus;
+	JFormattedTextField txtFormatOriginDate;
+	JFormattedTextField txtFormatScheduledArrival;
+	JFormattedTextField txtFormatScheduledDeparture;
+	JFormattedTextField txtFormatEstimatedArrival;
+	JFormattedTextField txtFormatEstimatedDeparture;
+	JFormattedTextField txtFlightNumber;
+	JFormattedTextField txtCheckInStart;
+	JFormattedTextField txtCheckInEnd;
 	String aircraftType = null;
 	FlightStatus status = null;
 	String IATACode = null;
 	String airlineName = null;
 	int flightNumber;
+	private boolean isEdit = false;
 	
 	/**
 	 * Launch the application.
@@ -60,11 +78,52 @@ public class Details {
 				try {
 					Details window = new Details();
 					window.frmFlightDetails.setVisible(true);
+					window.isEdit = false;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+	}
+	
+	public static void NewEditScreen(Flight flight) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Details window = new Details();
+					window.frmFlightDetails.setVisible(true);
+					window.setEditValues(flight);
+					window.isEdit = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	public void setEditValues(Flight flight) {
+		this.txtAircraftType.setText(flight.getAircraftType());
+		this.txtArrivalAirport.setText(flight.getArrivalData().getAirport());
+		this.txtArrivalGate.setText(flight.getArrivalData().getGateNo().toString());
+		this.txtArrivalTerminal.setText(flight.getArrivalData().getTerminal());
+		this.txtCheckInCounter.setText(flight.getDepartureData().getCheckInData().getCheckInCounter());
+		this.txtCheckInEnd.setValue(flight.getDepartureData().getCheckInData().getCheckInTimeEnd());
+		this.txtCheckInStart.setValue(flight.getDepartureData().getCheckInData().getCheckInTimeStart());
+		this.txtCheckInLoc.setText(flight.getDepartureData().getCheckInData().getCheckInLocation()+"");
+		this.txtDepartureAirport.setText(flight.getDepartureData().getAirport());
+		this.txtDepartureGate.setText(flight.getDepartureData().getGateNo().toString());
+		this.txtDepartureTerminal.setText(flight.getDepartureData().getTerminal());
+		this.txtFlightNumber.setValue(flight.getFlightNumber());
+		this.txtFormatEstimatedArrival.setValue(flight.getArrivalData().getEstimatedDateTime());
+		this.txtFormatEstimatedDeparture.setValue(flight.getDepartureData().getEstimatedDateTime());
+		this.txtFormatOriginDate.setValue(flight.getOriginDate());
+		this.txtFormatScheduledArrival.setValue(flight.getArrivalData().getScheduledDateTime());
+		this.txtFormatScheduledDeparture.setValue(flight.getDepartureData().getScheduledDateTime());
+		this.txtIATACode.setText(flight.getIATACode());
+		this.txtOperatingAirline.setText(flight.getAirlineName());
+		this.txtIATACode.setEditable(false);
+		this.txtFlightNumber.setEditable(false);
+		
 	}
 
 	/**
@@ -78,6 +137,8 @@ public class Details {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		try {
+		System.out.println("Initialise");
 		Flight f = new Flight();
 		frmFlightDetails = new JFrame();
 		frmFlightDetails.setTitle("Flight Details");
@@ -85,147 +146,96 @@ public class Details {
 		frmFlightDetails.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmFlightDetails.getContentPane().setLayout(null);
 		
-		textField = new JTextField();
-		textField.addInputMethodListener(new InputMethodListener() {
-			public void caretPositionChanged(InputMethodEvent arg0) {
-			}
-			public void inputMethodTextChanged(InputMethodEvent arg0) {
-				IATACode = f.getIATACode();
-			}
-		});
-		textField.setBounds(126, 14, 130, 14);
-		frmFlightDetails.getContentPane().add(textField);
-		textField.setColumns(10);
+		txtIATACode = new JTextField();
+		
+		txtIATACode.setBounds(126, 14, 130, 14);
+		frmFlightDetails.getContentPane().add(txtIATACode);
+		txtIATACode.setColumns(10);
 		
 		JLabel lblNewLabel = new JLabel("IATA Code:");
-		lblNewLabel.setLabelFor(textField);
+		lblNewLabel.setLabelFor(txtIATACode);
 		lblNewLabel.setBounds(10, 14, 62, 14);
 		frmFlightDetails.getContentPane().add(lblNewLabel);
 		
-		txtAsd = new JTextField();
-		txtAsd.addInputMethodListener(new InputMethodListener() {
-			public void caretPositionChanged(InputMethodEvent event) {
-			}
-			public void inputMethodTextChanged(InputMethodEvent event) {
-				aircraftType = f.getAircraftType();
-			}
-		});
-		txtAsd.setText("asd.66441TK");
-		txtAsd.setBounds(126, 39, 130, 14);
-		frmFlightDetails.getContentPane().add(txtAsd);
-		txtAsd.setColumns(10);
+		txtAircraftType = new JTextField();
 		
-		JLabel lblAircraftModel = new JLabel("Aircraft Model:");
-		lblAircraftModel.setLabelFor(txtAsd);
+		txtAircraftType.setText("asd.66441TK");
+		txtAircraftType.setBounds(126, 39, 130, 14);
+		frmFlightDetails.getContentPane().add(txtAircraftType);
+		txtAircraftType.setColumns(10);
+		
+		JLabel lblAircraftModel = new JLabel("Aircraft Type:");
+		lblAircraftModel.setLabelFor(txtAircraftType);
 		lblAircraftModel.setBounds(10, 39, 76, 14);
 		frmFlightDetails.getContentPane().add(lblAircraftModel);
 		
-		textField_2 = new JTextField();
-		textField_2.setBounds(126, 64, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_2);
-		textField_2.setColumns(10);
-		
 		JLabel lblTrackingNumber = new JLabel("Tracking Number:");
-		lblTrackingNumber.setLabelFor(textField_2);
 		lblTrackingNumber.setBounds(10, 64, 95, 14);
 		frmFlightDetails.getContentPane().add(lblTrackingNumber);
 		
-		textField_1 = new JTextField();
-		textField_1.setBounds(126, 89, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_1);
-		textField_1.setColumns(10);
+		txtDepartureAirport = new JTextField();
+		txtDepartureAirport.setBounds(126, 89, 130, 14);
+		frmFlightDetails.getContentPane().add(txtDepartureAirport);
+		txtDepartureAirport.setColumns(10);
 		
-		textField_3 = new JTextField();
-		textField_3.addInputMethodListener(new InputMethodListener() {
-			public void caretPositionChanged(InputMethodEvent event) {
-			}
-			public void inputMethodTextChanged(InputMethodEvent event) {
-				
-				f.getOriginDate();
-			}
-		});
-		textField_3.setBounds(126, 114, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_3);
-		textField_3.setColumns(10);
+		txtDepartureTerminal = new JTextField();
+		txtDepartureTerminal.setColumns(10);
+		txtDepartureTerminal.setBounds(126, 164, 130, 14);
+		frmFlightDetails.getContentPane().add(txtDepartureTerminal);
 		
-		txtt = new JTextField();
-		txtt.setText("2018-10-09T15:25:00");
-		txtt.setColumns(10);
-		txtt.setBounds(126, 139, 130, 14);
-		frmFlightDetails.getContentPane().add(txtt);
+		txtDepartureGate = new JTextField();
+		txtDepartureGate.setColumns(10);
+		txtDepartureGate.setBounds(126, 189, 130, 14);
+		frmFlightDetails.getContentPane().add(txtDepartureGate);
 		
-		textField_5 = new JTextField();
-		textField_5.setColumns(10);
-		textField_5.setBounds(126, 164, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_5);
+		txtCheckInLoc = new JTextField();
+		txtCheckInLoc.setColumns(10);
+		txtCheckInLoc.setBounds(126, 239, 130, 14);
+		frmFlightDetails.getContentPane().add(txtCheckInLoc);
 		
-		textField_6 = new JTextField();
-		textField_6.setColumns(10);
-		textField_6.setBounds(126, 189, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_6);
-		
-		textField_7 = new JTextField();
-		textField_7.setColumns(10);
-		textField_7.setBounds(126, 214, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_7);
-		
-		textField_8 = new JTextField();
-		textField_8.setColumns(10);
-		textField_8.setBounds(126, 239, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_8);
-		
-		textField_9 = new JTextField();
-		textField_9.setColumns(10);
-		textField_9.setBounds(126, 264, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_9);
+		txtCheckInCounter = new JTextField();
+		txtCheckInCounter.setColumns(10);
+		txtCheckInCounter.setBounds(126, 264, 130, 14);
+		frmFlightDetails.getContentPane().add(txtCheckInCounter);
 		
 		JLabel lblDepartureAirport = new JLabel("Departure Airport:");
-		lblDepartureAirport.setLabelFor(textField_1);
+		lblDepartureAirport.setLabelFor(txtDepartureAirport);
 		lblDepartureAirport.setBounds(10, 89, 95, 14);
 		frmFlightDetails.getContentPane().add(lblDepartureAirport);
 		
 		JLabel lblOriginDate = new JLabel("Origin Date:");
-		lblOriginDate.setLabelFor(textField_3);
 		lblOriginDate.setBounds(10, 114, 95, 14);
 		frmFlightDetails.getContentPane().add(lblOriginDate);
 		
 		JLabel lblScheduledDeparture = new JLabel("Scheduled Departure:");
-		lblScheduledDeparture.setLabelFor(txtt);
 		lblScheduledDeparture.setBounds(10, 139, 110, 14);
 		frmFlightDetails.getContentPane().add(lblScheduledDeparture);
 		
 		JLabel lblDepartureTerminal = new JLabel("Departure Terminal:");
-		lblDepartureTerminal.setLabelFor(textField_5);
+		lblDepartureTerminal.setLabelFor(txtDepartureTerminal);
 		lblDepartureTerminal.setBounds(10, 164, 110, 14);
 		frmFlightDetails.getContentPane().add(lblDepartureTerminal);
 		
 		JLabel lblDepartureGates = new JLabel("Departure Gates:");
-		lblDepartureGates.setLabelFor(textField_6);
+		lblDepartureGates.setLabelFor(txtDepartureGate);
 		lblDepartureGates.setBounds(10, 189, 95, 14);
 		frmFlightDetails.getContentPane().add(lblDepartureGates);
 		
 		JLabel lblEstimatedDeparture = new JLabel("Estimated Departure:");
-		lblEstimatedDeparture.setLabelFor(textField_7);
 		lblEstimatedDeparture.setBounds(10, 214, 95, 14);
 		frmFlightDetails.getContentPane().add(lblEstimatedDeparture);
 		
 		JLabel lblCheckinLocation = new JLabel("Check-in Location:");
-		lblCheckinLocation.setLabelFor(textField_8);
+		lblCheckinLocation.setLabelFor(txtCheckInLoc);
 		lblCheckinLocation.setBounds(10, 239, 95, 14);
 		frmFlightDetails.getContentPane().add(lblCheckinLocation);
 		
 		JLabel lblCheckinCounter = new JLabel("Check-in Counter:");
-		lblCheckinCounter.setLabelFor(textField_9);
+		lblCheckinCounter.setLabelFor(txtCheckInCounter);
 		lblCheckinCounter.setBounds(10, 264, 95, 14);
 		frmFlightDetails.getContentPane().add(lblCheckinCounter);
 		
-		textField_10 = new JTextField();
-		textField_10.setColumns(10);
-		textField_10.setBounds(126, 289, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_10);
-		
 		JLabel lblCheckinStart = new JLabel("Check-in Start:");
-		lblCheckinStart.setLabelFor(textField_10);
 		lblCheckinStart.setBounds(10, 289, 95, 14);
 		frmFlightDetails.getContentPane().add(lblCheckinStart);
 		
@@ -233,40 +243,30 @@ public class Details {
 		lblFlightStatus.setBounds(10, 314, 95, 14);
 		frmFlightDetails.getContentPane().add(lblFlightStatus);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.addItemListener(new ItemListener() {
-			public void itemStateChanged(ItemEvent e) {
-				status = f.getStatus();
-			}
-		});
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Landed", "Not Landed"}));
-		comboBox.setBounds(126, 314, 380, 23);
-		frmFlightDetails.getContentPane().add(comboBox);
+		comboBoxFlightStatus = new JComboBox();
+		comboBoxFlightStatus.setModel(new DefaultComboBoxModel(FlightStatus.values()));
+		
+		comboBoxFlightStatus.setBounds(126, 314, 380, 23);
+		frmFlightDetails.getContentPane().add(comboBoxFlightStatus);
 		
 		JLabel lblOperatingAirlines = new JLabel("Operating Airlines:");
 		lblOperatingAirlines.setBounds(271, 14, 95, 14);
 		frmFlightDetails.getContentPane().add(lblOperatingAirlines);
 		
-		textField_11 = new JTextField();
-		textField_11.addInputMethodListener(new InputMethodListener() {
-			public void caretPositionChanged(InputMethodEvent event) {
-			}
-			public void inputMethodTextChanged(InputMethodEvent event) {
-				airlineName = f.getAirlineName();
-			}
-		});
-		textField_11.setColumns(10);
-		textField_11.setBounds(376, 14, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_11);
+		txtOperatingAirline = new JTextField();
+		
+		txtOperatingAirline.setColumns(10);
+		txtOperatingAirline.setBounds(376, 14, 130, 14);
+		frmFlightDetails.getContentPane().add(txtOperatingAirline);
 		
 		JLabel lblArrivalAirport = new JLabel("Arrival Airport:");
 		lblArrivalAirport.setBounds(271, 89, 95, 14);
 		frmFlightDetails.getContentPane().add(lblArrivalAirport);
 		
-		textField_12 = new JTextField();
-		textField_12.setColumns(10);
-		textField_12.setBounds(376, 89, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_12);
+		txtArrivalAirport = new JTextField();
+		txtArrivalAirport.setColumns(10);
+		txtArrivalAirport.setBounds(376, 89, 130, 14);
+		frmFlightDetails.getContentPane().add(txtArrivalAirport);
 		
 		JLabel lblScheduledArrival = new JLabel("Scheduled Arrival:");
 		lblScheduledArrival.setBounds(271, 139, 95, 14);
@@ -288,47 +288,134 @@ public class Details {
 		lblCheckinEnd.setBounds(271, 289, 95, 14);
 		frmFlightDetails.getContentPane().add(lblCheckinEnd);
 		
-		textField_13 = new JTextField();
-		textField_13.setColumns(10);
-		textField_13.setBounds(376, 139, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_13);
+		txtArrivalTerminal = new JTextField();
+		txtArrivalTerminal.setColumns(10);
+		txtArrivalTerminal.setBounds(376, 164, 130, 14);
+		frmFlightDetails.getContentPane().add(txtArrivalTerminal);
 		
-		textField_14 = new JTextField();
-		textField_14.setColumns(10);
-		textField_14.setBounds(376, 164, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_14);
-		
-		textField_15 = new JTextField();
-		textField_15.setColumns(10);
-		textField_15.setBounds(376, 189, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_15);
-		
-		textField_16 = new JTextField();
-		textField_16.setColumns(10);
-		textField_16.setBounds(376, 214, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_16);
-		
-		textField_17 = new JTextField();
-		textField_17.setColumns(10);
-		textField_17.setBounds(376, 289, 130, 14);
-		frmFlightDetails.getContentPane().add(textField_17);
+		txtArrivalGate = new JTextField();
+		txtArrivalGate.setColumns(10);
+		txtArrivalGate.setBounds(376, 189, 130, 14);
+		frmFlightDetails.getContentPane().add(txtArrivalGate);
 		
 		JButton btnSave = new JButton("Save");
-		btnSave.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				f.setAircraftType(aircraftType);
-				f.setAirlineName(airlineName);
-				f.setFlightNumber(flightNumber);
-				f.setIATACode(IATACode);
-				f.setStatus(status);
-			}
-		});
-		btnSave.setBounds(417, 341, 89, 23);
+		
+		
+		btnSave.setBounds(415, 341, 89, 23);
 		frmFlightDetails.getContentPane().add(btnSave);
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setBounds(316, 341, 89, 23);
 		frmFlightDetails.getContentPane().add(btnCancel);
+		
+		SimpleDateFormat formatOriginDate = new SimpleDateFormat("yyyy-MM-dd");
+		 txtFormatOriginDate = new JFormattedTextField(formatOriginDate);
+		
+		txtFormatOriginDate.setBounds(126, 114, 130, 14);
+		frmFlightDetails.getContentPane().add(txtFormatOriginDate);
+		
+		SimpleDateFormat formatScheduledArrival = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		 txtFormatScheduledArrival = new JFormattedTextField(formatScheduledArrival);
+		
+		txtFormatScheduledArrival.setBounds(376, 136, 127, 20);
+		txtFormatScheduledArrival.setValue(new Date());
+		frmFlightDetails.getContentPane().add(txtFormatScheduledArrival);
+		
+		SimpleDateFormat formatScheduledDeparture = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		 txtFormatScheduledDeparture = new JFormattedTextField(formatScheduledDeparture);
+		lblScheduledDeparture.setLabelFor(txtFormatScheduledDeparture);
+		txtFormatScheduledDeparture.setBounds(126, 142, 130, 14);
+		txtFormatScheduledDeparture.setValue(new Date());
+		frmFlightDetails.getContentPane().add(txtFormatScheduledDeparture);
+		
+		SimpleDateFormat formatEstimatedDeparture = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		 txtFormatEstimatedDeparture = new JFormattedTextField(formatEstimatedDeparture);
+		txtFormatEstimatedDeparture.setBounds(126, 217, 130, 14);
+		txtFormatEstimatedDeparture.setValue(new Date());
+		frmFlightDetails.getContentPane().add(txtFormatEstimatedDeparture);
+		
+		SimpleDateFormat formatEstimatedArrival = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		 txtFormatEstimatedArrival = new JFormattedTextField(formatEstimatedArrival);
+		txtFormatEstimatedArrival.setBounds(376, 214, 130, 14);
+		txtFormatEstimatedArrival.setValue(new Date());
+		frmFlightDetails.getContentPane().add(txtFormatEstimatedArrival);
+		
+		
+		NumberFormat longFormat = NumberFormat.getIntegerInstance();
+
+		NumberFormatter numberFormatter = new NumberFormatter(longFormat);
+		numberFormatter.setValueClass(Long.class); //optional, ensures you will always get a long value
+		numberFormatter.setAllowsInvalid(false); //this is the key!!
+		numberFormatter.setMinimum(0l); //Optional
+		 txtFlightNumber = new JFormattedTextField(numberFormatter);
+		txtFlightNumber.setBounds(126, 64, 130, 14);
+		frmFlightDetails.getContentPane().add(txtFlightNumber);
+		
+		SimpleDateFormat formatCheckInStart = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		 txtCheckInStart = new JFormattedTextField(formatCheckInStart);
+		txtCheckInStart.setBounds(126, 289, 130, 14);
+		frmFlightDetails.getContentPane().add(txtCheckInStart);
+		
+		SimpleDateFormat formatCheckInEnd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		 txtCheckInEnd = new JFormattedTextField(formatCheckInEnd);
+		txtCheckInEnd.setBounds(376, 289, 130, 14);
+		frmFlightDetails.getContentPane().add(txtCheckInEnd);
+		
+		
+		System.out.println("Adding Keypress");
+		btnSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				try {
+					System.out.println("Adding CheckInData");
+				CheckIn checkIn = new CheckIn();
+				checkIn.setCheckInCounter(txtCheckInCounter.getText());
+				checkIn.setCheckInLocation(Integer.parseInt(txtCheckInLoc.getText()));
+				checkIn.setCheckInTimeEnd((Date)txtCheckInStart.getValue());
+				checkIn.setCheckInTimeStart((Date)txtCheckInEnd.getValue());
+				System.out.println("Adding DepData");
+				ArrivalDepartureData depData = new ArrivalDepartureData();
+				depData.setAirport(txtDepartureAirport.getText());
+				depData.setScheduledDateTime((Date)txtFormatScheduledDeparture.getValue());
+				depData.setGateNo(Integer.parseInt(txtDepartureGate.getText()));
+				depData.setCheckInData(checkIn);
+				depData.setEstimatedDateTime((Date)txtFormatEstimatedDeparture.getValue());
+				
+				System.out.println("Adding ArrData");
+				ArrivalDepartureData arrData = new ArrivalDepartureData();
+				arrData.setAirport(txtArrivalAirport.getText());
+				arrData.setScheduledDateTime((Date)txtFormatScheduledArrival.getValue());
+				arrData.setGateNo(Integer.parseInt(txtArrivalGate.getText()));
+				arrData.setCheckInData(null);
+				arrData.setEstimatedDateTime((Date)txtFormatEstimatedArrival.getValue());
+				
+				System.out.println("Adding FlightData");
+				f.setAircraftType(txtAircraftType.getText());
+				f.setAirlineName(txtOperatingAirline.getText());
+				f.setArrivalData(arrData);
+				f.setDepartureData(depData);
+				f.setFlightNumber(Integer.parseInt(txtFlightNumber.getText()));
+				f.setIATACode(txtIATACode.getText());
+				f.setStatus((FlightStatus)comboBoxFlightStatus.getSelectedItem());
+				f.setOriginDate((Date)txtFormatOriginDate.getValue());
+				System.out.println("Adding Server");
+				if(!isEdit)
+					MainClient.stub.addNewFlight(MainClient.clientName, f);
+				else
+					MainClient.stub.updateFlight(MainClient.clientName, f);
+				exit();
+				}
+				catch(Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public void exit() {
+		this.frmFlightDetails.dispose();
 	}
 }
