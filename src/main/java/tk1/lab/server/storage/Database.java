@@ -58,4 +58,10 @@ public class Database {
 		flight.addAll(Database.flightList.values());
 		return flight;
 	}
+	
+	public List<IFlightClient> getClients(){
+		List<IFlightClient> clients = new ArrayList<>();
+		clients.addAll(Database.userIFlightClient.values());
+		return clients;
+	}
 }

@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import javax.swing.text.NumberFormatter;
+import javax.swing.JDialog; 
 
 import tk1.lab.client.MainClient;
 import tk1.lab.server.model.ArrivalDepartureData;
@@ -67,6 +68,7 @@ public class Details {
 	String IATACode = null;
 	String airlineName = null;
 	int flightNumber;
+	private Flight flightBeingEdited;
 	private boolean isEdit = false;
 	
 	/**
@@ -86,6 +88,31 @@ public class Details {
 		});
 	}
 	
+	public boolean isEditing() {
+		return this.frmFlightDetails.isVisible()&isEdit;
+	}
+	
+	public void flightUpdatedOrDeletedWhileEdit(Flight flight,boolean deleted) {
+		if((flight.getIATACode()==this.flightBeingEdited.getIATACode())&&
+				(flight.getFlightNumber()==this.flightBeingEdited.getFlightNumber())) {
+			if(deleted) {
+				JDialog dialog = new JDialog(this.frmFlightDetails,"Flight Deleted");
+				JLabel label = new JLabel("Flight has been deleted by another user");
+				dialog.add(label);
+				dialog.setSize(100, 100);
+				dialog.setVisible(true);
+				this.frmFlightDetails.dispose();
+			}else {
+				JDialog dialog = new JDialog(this.frmFlightDetails,"Flight Updated");
+				JLabel label = new JLabel("Flight has been updated by another user");
+				dialog.add(label);
+				dialog.setSize(100, 100);
+				dialog.setVisible(true);
+				this.frmFlightDetails.dispose();
+			}
+		}
+	}
+	
 	public static void NewEditScreen(Flight flight) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -93,6 +120,7 @@ public class Details {
 					Details window = new Details();
 					window.frmFlightDetails.setVisible(true);
 					window.setEditValues(flight);
+					window.flightBeingEdited=flight;
 					window.isEdit = true;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -123,7 +151,16 @@ public class Details {
 		this.txtOperatingAirline.setText(flight.getAirlineName());
 		this.txtIATACode.setEditable(false);
 		this.txtFlightNumber.setEditable(false);
-		
+		FlightStatus item;
+		for (int i = 0; i < this.comboBoxFlightStatus.getItemCount(); i++)
+        {
+            item = (FlightStatus)this.comboBoxFlightStatus.getItemAt(i);
+            if (item == flight.getStatus())
+            {
+                this.comboBoxFlightStatus.setSelectedIndex(i);
+                break;
+            }
+        }
 	}
 
 	/**

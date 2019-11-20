@@ -27,9 +27,10 @@ public class FlightServer implements IFlightServer {
 		try {
 				Database database = new Database();
 				database.updateFlight(flight);
-				IFlightClient client = database.getClientObject(clientName);
+				for(IFlightClient client : database.getClients()) {
+					client.receiveFlights(database.getFlights());
+				}
 				System.out.println(clientName+"::"+flight.getIATACode()+flight.getFlightNumber());
-				database.getClientObject(clientName).receiveFlights(database.getFlights());
 			}catch(Exception ex) {
 				System.out.println("Exception:"+ex.getMessage());
 				ex.printStackTrace();
@@ -40,11 +41,14 @@ public class FlightServer implements IFlightServer {
 	public void updateFlight(String clientName, Flight flight) {
 		// TODO Auto-generated method stub
 		try {
-		Database database = new Database();
-		database.updateFlight(flight);
-		IFlightClient client = database.getClientObject(clientName);
-		System.out.println(clientName+"::"+flight.getIATACode()+flight.getFlightNumber());
-		database.getClientObject(clientName).receiveUpdatedFlight(flight, false);
+			Database database = new Database();
+			database.updateFlight(flight);
+			
+			System.out.println(clientName+"::"+flight.getIATACode()+flight.getFlightNumber());
+			for(IFlightClient client : database.getClients()) {
+				client.receiveUpdatedFlight(flight, false);
+			}
+			
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage());
 			ex.printStackTrace();
@@ -57,7 +61,9 @@ public class FlightServer implements IFlightServer {
 		try {
 			Database database = new Database();
 			database.removeFlight(flight); 
-			database.getClientObject(clientName).receiveUpdatedFlight(flight, true);
+			for(IFlightClient client : database.getClients()) {
+				client.receiveUpdatedFlight(flight, true);
+			}
 		}catch(Exception ex) {
 			System.out.println("Exception:"+ex.getMessage());
 			ex.printStackTrace();

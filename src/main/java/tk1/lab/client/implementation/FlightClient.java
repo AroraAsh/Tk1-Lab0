@@ -27,20 +27,27 @@ public class FlightClient implements IFlightClient {
 		int flightNumber = flight.getFlightNumber();
 		boolean isFound = false;
 		int index=-1;
+		System.out.println("Update FLight,:"+deleted+","+IATACode+",,"+flightNumber);
 		for(int i=0;i<FlightListGui.flightList.size();i++) {
 			Flight f = FlightListGui.flightList.get(i);
-			if(f.getIATACode()==IATACode&&f.getFlightNumber()==flightNumber) {
+			System.out.println("Update FLight0,:"+f.getIATACode()+",,"+f.getFlightNumber());
+			if((f.getIATACode().equalsIgnoreCase(IATACode)) && (Integer.compare(f.getFlightNumber(),flightNumber) == 0)){
 				isFound = true;
 				index = i;
 			}
 		}
-		if(isFound)
+		if()
+		System.out.println("Index:"+index);
+		if(isFound) {
 			if(deleted)
 				FlightListGui.flightList.remove(index);
-				else
-					FlightListGui.flightList.set(index, flight);
-		FlightListGui obj = new FlightListGui();
-		obj.setFlightListData(FlightListGui.flightList);
+			else
+				FlightListGui.flightList.set(index, flight);
+			
+			FlightListGui obj = new FlightListGui();
+			obj.setFlightListData(FlightListGui.flightList);
+		}
+		
 
 	}
 

@@ -28,7 +28,7 @@ public class MainClient {
 	
 	public static void register (int port) throws RemoteException, NotBoundException {
 		client = new FlightClient();
-	    clientStub = (IFlightClient) UnicastRemoteObject.exportObject(client, 6000);
+	    clientStub = (IFlightClient) UnicastRemoteObject.exportObject(client, 0);
 	    registry = LocateRegistry.getRegistry(port);
 		stub = (IFlightServer) registry.lookup("FlightServer");
 	    
@@ -46,6 +46,11 @@ public class MainClient {
 			System.out.println("Exception:"+ex.getMessage()+ex.getStackTrace().toString());
 			ex.printStackTrace();
 		}
+	}
+	
+	public int getAvailablePort() {
+		int baseVal = 6011;
+		return baseVal;
 	}
 
 }
