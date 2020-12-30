@@ -1,3 +1,4 @@
 # Tk1-Lab0
 
-This is an university assignment showcasing 2 different methods of communication between client and server, which are SOAP and REST.
+This is an university assignment showcasing Remote Method Invocation or RMI between client and Server.
+The app has a gui made in Java Swing.
